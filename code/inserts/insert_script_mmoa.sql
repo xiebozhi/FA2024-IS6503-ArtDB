@@ -1,3 +1,7 @@
+-- Enable execution plan
+SET STATISTICS TIME ON;
+SET STATISTICS IO ON;
+
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
 DECLARE @CurrentBatch INT = 0;
@@ -65,7 +69,7 @@ WHILE @@FETCH_STATUS = 0
 BEGIN
     -- Insert artwork record
     INSERT INTO [art_connection_db].[dbo].[Artwork] ([catalogue_number], [Title], [Creation_Date], [Medium], [Credit_Line], [Department], [Dimensions], [source_identifyer_art], [source_pk_artID])
-    VALUES (@Object_Number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, @Dimensions, 'MMOA_artworks', @Artwork_ID);
+    VALUES (@Object_Number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, @Dimensions, 'MMOA', @Artwork_ID);
 
     DECLARE @artID INT = SCOPE_IDENTITY();
     PRINT 'Inserted artID ' + CONVERT(VARCHAR, @artID) + ' with "' + LEFT(@Title, 50) + '"';
@@ -75,7 +79,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Artist] WHERE [Display_Name] = @Artist_Name)
     BEGIN
         INSERT INTO [art_connection_db].[dbo].[Artist] ([Display_Name], [Legal_Name], [Nationality], [Role], [Birth_Date], [Death_Date], [source_identifyer_artist], [source_pk_ArtistID], [Gender])
-        VALUES (@Artist_Name, @Legal_Name, @Nationality, 'Artist', @Birth_Date, @Death_Date, 'MMOA_artworks', @Artist_ID, @Gender);
+        VALUES (@Artist_Name, @Legal_Name, @Nationality, 'Artist', @Birth_Date, @Death_Date, 'MMOA', @Artist_ID, @Gender);
         SET @artistID = SCOPE_IDENTITY();
         PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Artist_Name, 50) + '"';
     END
@@ -127,3 +131,7 @@ BEGIN
 END
 
 PRINT 'Processing complete. Added ' + CONVERT(VARCHAR, @RecordCount) + ' records from source file: MMOA_artworks';
+
+-- Disable execution plan
+SET STATISTICS TIME OFF;
+SET STATISTICS IO OFF;

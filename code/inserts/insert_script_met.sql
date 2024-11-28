@@ -1,3 +1,7 @@
+-- Enable execution plan
+SET STATISTICS TIME ON;
+SET STATISTICS IO ON;
+
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
 DECLARE @CurrentBatch INT = 0;
@@ -129,3 +133,7 @@ BEGIN
 END
 
 PRINT 'Processing complete. Added ' + CONVERT(VARCHAR, @RecordCount) + ' records from source file: MET_objects';
+
+-- Disable execution plan
+SET STATISTICS TIME OFF;
+SET STATISTICS IO OFF;
