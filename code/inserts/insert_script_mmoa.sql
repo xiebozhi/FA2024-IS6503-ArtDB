@@ -96,7 +96,7 @@ BEGIN
 
     -- Insert into Linker_Art_In_Museum table
     INSERT INTO [art_connection_db].[dbo].[Linker_Art_In_Museum] ([artID], [museumID])
-    VALUES (@artID, 4); -- Hardcoded to MMOA_artworks
+    VALUES (@artID, 3); -- Hardcoded to MMOA_artworks
     PRINT 'Saved artwork: ' + CONVERT(VARCHAR, @artID) + ' into Linker_Art_In_Museum';
 
     -- Insert into linker_Art_In_Portfolio table

@@ -116,7 +116,7 @@ BEGIN
 
     -- Insert into Linker_Art_In_Museum table
     INSERT INTO [art_connection_db].[dbo].[Linker_Art_In_Museum] ([artID], [museumID])
-    VALUES (@artID, 2); -- Hardcoded to CMOA_teenie
+    VALUES (@artID, 1; -- Hardcoded to CMOA
     PRINT 'Saved artwork: ' + CONVERT(VARCHAR, @artID) + ' into Linker_Art_In_Museum';
 
     -- Insert into linker_Art_In_Portfolio table
