@@ -7,7 +7,8 @@ DROP INDEX IF EXISTS idx_carn_teenie_id ON [art_connection_db].[dbo].[carnigie_t
 DROP INDEX IF EXISTS idx_met_Object_ID ON [art_connection_db].[dbo].[MetObjects];
 DROP INDEX IF EXISTS idx_met_Object_Number ON [art_connection_db].[dbo].[MetObjects];
 DROP INDEX IF EXISTS idx_mod_Artwork_ID ON [art_connection_db].[dbo].[MMOA_artworks];
-DROP INDEX IF EXISTS idx_mod_Artist_ID ON [art_connection_db].[dbo].[MMOA_artists];
+DROP INDEX IF EXISTS idx_mod_Artist_ID1 ON [art_connection_db].[dbo].[MMOA_artworks];
+DROP INDEX IF EXISTS idx_mod_Artist_ID2 ON [art_connection_db].[dbo].[MMOA_artists];
 
 -- Drop linker tables
 DROP TABLE IF EXISTS [art_connection_db].[dbo].[Linker_Artist_To_Art];
@@ -155,7 +156,8 @@ CREATE INDEX idx_carn_teenie_id ON [art_connection_db].[dbo].[carnigie_teenie] (
 CREATE INDEX idx_met_Object_ID ON [art_connection_db].[dbo].[MetObjects] ([Object_ID]);
 CREATE INDEX idx_met_Object_Number ON [art_connection_db].[dbo].[MetObjects] ([Object_Number]);
 CREATE INDEX idx_mod_Artwork_ID ON [art_connection_db].[dbo].[MMOA_artworks] ([Artwork_ID]);
-CREATE INDEX idx_mod_Artist_ID ON [art_connection_db].[dbo].[MMOA_artists] ([Artist_ID]);
+CREATE INDEX idx_mod_Artist_ID1 ON [art_connection_db].[dbo].[MMOA_artworks] ([Artist_ID]);
+CREATE INDEX idx_mod_Artist_ID2 ON [art_connection_db].[dbo].[MMOA_artists] ([Artist_ID]);
 
 -- Insert data into Museum table
 INSERT INTO [art_connection_db].[dbo].[Museum] 
