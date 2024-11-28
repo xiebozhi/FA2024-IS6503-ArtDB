@@ -82,7 +82,6 @@ CREATE TABLE [art_connection_db].[dbo].[Museum] (
   [State] VARCHAR(100) NULL,
   [Street] VARCHAR(100) NULL,
   [Zip] VARCHAR(100) NULL,
-  [Zip5] VARCHAR(100) NULL,
   [AKA_DBA] VARCHAR(255) NULL,
   [ALT_Name] VARCHAR(100) NULL,
   [Country] VARCHAR(100) NULL,
@@ -160,9 +159,9 @@ CREATE INDEX idx_mod_Artist_ID ON [art_connection_db].[dbo].[MMOA_artists] ([Art
 
 -- Insert data into Museum table
 INSERT INTO [art_connection_db].[dbo].[Museum] 
-(museum_text_key, Name, City, State, Street, Zip, Zip5, AKA_DBA, ALT_Name, Country, Discipline, Gallery_Space, Legal_Name, Mission, Phone, WebURL, Year_established, Admission, source_identifyer_museum, source_pk_museumID) 
+(museum_text_key, Name, City, State, Street, Zip, AKA_DBA, ALT_Name, Country, Discipline, Gallery_Space, Legal_Name, Mission, Phone, WebURL, Year_established, Admission, source_identifyer_museum, source_pk_museumID) 
 VALUES 
-('carnegie_museum_of_art', 'Carnegie Museum of Art', 'Pittsburgh', 'PA', '4400 Forbes Ave', '15213', '15213', NULL, NULL, 'USA', 'Art', 130000, 'Carnegie Museum of Art', 'To be a leader in collecting contemporary art', '412-622-3131', 'http://www.cmoa.org', 1895, 'General: $20, Students: $10, Seniors: $15, Children: Free', 'assistant_copilot', 1),
-('carnegie_teenie_harris', 'Carnegie_Teenie Harris Archive', 'Pittsburgh', 'PA', '4400 Forbes Ave', '15213', '15213', NULL, NULL, 'USA', 'Photography', NULL, 'Carnegie_Teenie Harris Archive', 'Documenting the African American community in Pittsburgh', '412-622-3131', 'http://www.cmoa.org/teenie-harris', 1918, 'General: $20, Students: $10, Seniors: $15, Children: Free', 'assistant_copilot', 2),
-('the_met', 'The Metropolitan Museum of Art', 'New York', 'NY', '1000 5th Ave', '10028', '10028', 'The Met', 'Metropolitan Museum', 'USA', 'Art', 2000000, 'The Metropolitan Museum of Art', 'To collect, preserve, study, exhibit, and encourage appreciation for and advance knowledge of works of art', '212-535-7710', 'http://www.metmuseum.org', 1870, 'General: $25, Students: $12, Seniors: $17, Children: Free', 'assistant_copilot', 3),
-('moma', 'The Museum of Modern Art', 'New York', 'NY', '11 W 53rd St', '10019', '10019', 'MoMA', 'Museum of Modern Art', 'USA', 'Modern Art', 70896, 'The Museum of Modern Art', 'To collect, preserve, and present modern and contemporary art', '212-708-9400', 'http://www.moma.org', 1929, 'General: $25, Students: $14, Seniors: $18, Children: Free', 'assistant_copilot', 4);
+('CMOA', 'Carnegie Museum of Art', 'Pittsburgh', 'PA', '4400 Forbes Avenue', '15213', 'CMOA', 'Carnegie Museum', 'USA', 'Contemporary Art', '5000', 'Carnegie Institute', 'To inspire and educate', '+1 412-622-3131', 'https://carnegieart.org', '1895', 'Adults: $20, Seniors (65+): $15, Students: $12, Children (3-18): $10, Under 3: Free', 'copilot', '1'),
+('CMOA_teenie', 'Carnegie Museum of Art, Teenie Harris Archive', 'Pittsburgh', 'PA', '4400 Forbes Avenue', '15213', 'CMOA', 'Teenie Harris Archive', 'USA', 'Photography', '2000', 'Carnegie Institute', 'To preserve and share the works of Teenie Harris', '+1 412-622-3131', 'https://teenie.cmoa.org', '1895', 'Adults: $20, Seniors (65+): $15, Students: $12, Children (3-18): $10, Under 3: Free', 'copilot', '4'),
+('MMOA', 'Museum of Modern Art', 'New York', 'NY', '11 West 53rd Street', '10019', 'MoMA', 'Museum of Modern Art', 'USA', 'Modern and Contemporary Art', '6000', 'Museum of Modern Art', 'To connect people to the art of our time', '+1 212-708-9400', 'https://www.moma.org', '1929', 'Adults: $25, Seniors (65+): $18, Students: $14, Children under 12: Free', 'copilot', '2'),
+('Met', 'Metropolitan Museum of Art', 'New York', 'NY', '1000 Fifth Avenue', '10028', 'The Met', 'Metropolitan Museum', 'USA', 'Encyclopedic', '8000', 'Metropolitan Museum of Art', 'To connect people to creativity and knowledge', '+1 212-535-7710', 'https://www.metmuseum.org', '1870', 'Adults: $30, Seniors (65+): $22, Students: $17, Children under 12: Free', 'copilot', '3');
