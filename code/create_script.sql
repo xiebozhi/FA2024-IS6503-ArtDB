@@ -134,14 +134,6 @@ CREATE TABLE [art_connection_db].[dbo].[Linker_Art_In_Museum] (
   FOREIGN KEY (museumID) REFERENCES [art_connection_db].[dbo].[Museum](museumID)
 );
 
--- Determine max length for specified columns
-SELECT MAX(LEN([id])) AS MaxLength_cmoa_id FROM [art_connection_db].[dbo].[carnigie_cmoa];
-SELECT MAX(LEN([id])) AS MaxLength_teenie_id FROM [art_connection_db].[dbo].[carnigie_teenie];
-SELECT MAX(LEN([Object_ID])) AS MaxLength_met_Object_ID FROM [art_connection_db].[dbo].[MetObjects];
-SELECT MAX(LEN([Object_Number])) AS MaxLength_met_Object_Number FROM [art_connection_db].[dbo].[MetObjects];
-SELECT MAX(LEN([Artwork_ID])) AS MaxLength_mod_Artwork_ID FROM [art_connection_db].[dbo].[MMOA_artworks];
-SELECT MAX(LEN([Artist_ID])) AS MaxLength_mod_Artist_ID FROM [art_connection_db].[dbo].[MMOA_artists];
-
 -- Alter column data types based on the rounded-up lengths (64)
 ALTER TABLE [art_connection_db].[dbo].[carnigie_cmoa] ALTER COLUMN [id] VARCHAR(64);
 ALTER TABLE [art_connection_db].[dbo].[carnigie_teenie] ALTER COLUMN [id] VARCHAR(64);
