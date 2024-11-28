@@ -1,6 +1,7 @@
--- Enable execution plan
-SET STATISTICS TIME ON;
-SET STATISTICS IO ON;
+-- Disable execution plan
+SET STATISTICS TIME OFF;
+SET STATISTICS IO OFF;
+
 
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
@@ -110,11 +111,11 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Artist] WHERE [Display_Name] = @Artist_Name)
     BEGIN
         INSERT INTO [art_connection_db].[dbo].[Artist] (
-            [Display_Name], [Nationality], [Role], [Birth_Date], [Death_Date], 
+            [Display_Name], [Nationality],  [Birth_Date], [Death_Date], 
             [source_identifyer_artist], [source_pk_ArtistID], [Gender]
         )
         VALUES (
-            @Artist_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'MMOA', @Artist_ID, @Gender
+            @Artist_Name, @Nationality, @Birth_Date, @Death_Date, 'MMOA', @Artist_ID, @Gender
         );
         SET @artistID = SCOPE_IDENTITY();
         -- PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Artist_Name, 50) + '"';
