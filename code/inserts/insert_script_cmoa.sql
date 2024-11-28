@@ -70,12 +70,12 @@ BEGIN
     INSERT INTO [art_connection_db].[dbo].[Portfolio] ([Title], [Notes])
     VALUES ('Portfolio information not found', 'Default portfolio for artworks without specific portfolio information.');
     SET @PortfolioID = SCOPE_IDENTITY();
-    PRINT 'Inserted PortfolioID ' + CONVERT(VARCHAR, @PortfolioID) + ' for "Portfolio information not found"';
+    -- PRINT 'Inserted PortfolioID ' + CONVERT(VARCHAR, @PortfolioID) + ' for "Portfolio information not found"';
 END
 ELSE
 BEGIN
     SELECT @PortfolioID = [portfolioID] FROM [art_connection_db].[dbo].[Portfolio] WHERE [Title] = 'Portfolio information not found';
-    PRINT 'Found existing PortfolioID ' + CONVERT(VARCHAR, @PortfolioID) + ' for "Portfolio information not found"';
+    -- PRINT 'Found existing PortfolioID ' + CONVERT(VARCHAR, @PortfolioID) + ' for "Portfolio information not found"';
 END;
 
 -- Open the cursor
@@ -96,7 +96,7 @@ BEGIN
             @Dimensions, @Image_URL, @Repository, 'CMOA_cmoa', @source_pk_artID, @Web_URL);
 
     DECLARE @artID INT = SCOPE_IDENTITY();
-    PRINT 'Inserted artID ' + CONVERT(VARCHAR, @artID) + ' with "' + LEFT(@Title, 50) + '"';
+    -- PRINT 'Inserted artID ' + CONVERT(VARCHAR, @artID) + ' with "' + LEFT(@Title, 50) + '"';
 
     -- Check if the artist exists by Title, insert if not, and get artistID
     DECLARE @artistID INT;
@@ -105,28 +105,31 @@ BEGIN
         INSERT INTO [art_connection_db].[dbo].[Artist] ([Display_Name], [Legal_Name], [Nationality], [Role], [Birth_Date], [Death_Date], [source_identifyer_artist], [source_pk_ArtistID])
         VALUES (@Display_Name, @Legal_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'CMOA_cmoa', @Artist_ID);
         SET @artistID = SCOPE_IDENTITY();
-        PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Display_Name, 50) + '"';
+        -- PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Display_Name, 50) + '"';
     END
     ELSE
     BEGIN
         SELECT @artistID = [artistID] FROM [art_connection_db].[dbo].[Artist] WHERE [Display_Name] = @Display_Name;
-        PRINT 'Found existing artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Display_Name, 50) + '"';
+        -- PRINT 'Found existing artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Display_Name, 50) + '"';
     END;
     
     -- Insert into Linker_Artist_To_Art table
     INSERT INTO [art_connection_db].[dbo].[Linker_Artist_To_Art] ([artID], [artistID])
     VALUES (@artID, @artistID);
-    PRINT 'Linked artistID ' + CONVERT(VARCHAR, @artistID) + ' with artID ' + CONVERT(VARCHAR, @artID);
+    -- PRINT 'Linked artistID ' + CONVERT(VARCHAR, @artistID) + ' with artID ' + CONVERT(VARCHAR, @artID);
 
     -- Insert into Linker_Art_In_Museum table
     INSERT INTO [art_connection_db].[dbo].[Linker_Art_In_Museum] ([artID], [museumID])
     VALUES (@artID, 1); -- Hardcoded to CMOA_cmoa
-    PRINT 'Saved artwork: ' + CONVERT(VARCHAR, @artID) + ' into Linker_Art_In_Museum';
+    -- PRINT 'Saved artwork: ' + CONVERT(VARCHAR, @artID) + ' into Linker_Art_In_Museum';
 
     -- Insert into linker_Art_In_Portfolio table
     INSERT INTO [art_connection_db].[dbo].[linker_Art_In_Portfolio] ([artID], [portfolioID])
     VALUES (@artID, @PortfolioID);
-    PRINT 'Linked artID ' + CONVERT(VARCHAR, @artID) + ' to PortfolioID ' + CONVERT(VARCHAR, @PortfolioID);
+    -- PRINT 'Linked artID ' + CONVERT(VARCHAR, @artID) + ' to PortfolioID ' + CONVERT(VARCHAR, @PortfolioID);
+
+    -- Singular print statement for summary
+    PRINT 'Processed artID: ' + CONVERT(VARCHAR, @artID) + ', Title: "' + LEFT(@Title, 50) + '", artistID: ' + CONVERT(VARCHAR, @artistID) + ', Artist Name: "' + LEFT(@Display_Name, 50) + '"';
 
     -- Increment the record count
     SET @RecordCount = @RecordCount + 1;
@@ -136,7 +139,7 @@ BEGIN
     IF @CurrentBatch >= @BatchSize
     BEGIN
         COMMIT TRANSACTION;
-        PRINT 'Committed batch of ' + CONVERT(VARCHAR, @CurrentBatch) + ' records';
+        -- PRINT 'Committed batch of ' + CONVERT(VARCHAR, @CurrentBatch) + ' records';
         SET @CurrentBatch = 0;
         BEGIN TRANSACTION;
     END
@@ -156,7 +159,7 @@ DEALLOCATE ArtCursor;
 IF @CurrentBatch > 0
 BEGIN
     COMMIT TRANSACTION;
-    PRINT 'Committed final batch of ' + CONVERT(VARCHAR, @CurrentBatch) + ' records';
+    -- PRINT 'Committed final batch of ' + CONVERT(VARCHAR, @CurrentBatch) + ' records';
 END
 
 PRINT 'Processing complete. Added ' + CONVERT(VARCHAR, @RecordCount) + ' records from source file: CMOA_cmoa';
