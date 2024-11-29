@@ -1,3 +1,9 @@
+-- USE CASE 3: Filter by Medium
+-- Requirements:
+-- 1) Involves multiple entities: Artist, Artwork, Museum
+-- 2) Uses LIKE keyword
+-- 3) Uses GROUP BY feature
+
 -- Drop the view if it already exists
 IF OBJECT_ID('dbo.ArtistArtworksByMediumView', 'V') IS NOT NULL
     DROP VIEW dbo.ArtistArtworksByMediumView;

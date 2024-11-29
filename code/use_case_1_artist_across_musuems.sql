@@ -1,3 +1,10 @@
+-- USE CASE 1: Artist Across Museums
+-- Requirements:
+-- 1) Involves multiple entities: Artist, Artwork, Museum
+-- 2) Uses mathematical functions: COUNT, SUM
+-- 3) Uses GROUP BY feature
+
+-- Drop the view if it already exists
 IF OBJECT_ID('dbo.ArtistArtworksView', 'V') IS NOT NULL
     DROP VIEW dbo.ArtistArtworksView;
 GO

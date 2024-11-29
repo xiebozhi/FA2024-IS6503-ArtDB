@@ -1,3 +1,9 @@
+-- USE CASE 4: Portfolio Management
+-- Requirements:
+-- 1) Involves multiple entities: Artist, Artwork, Museum, Portfolio
+-- 2) Uses mathematical functions: COUNT
+-- 3) Uses GROUP BY feature
+
 -- Drop the view if it already exists
 IF OBJECT_ID('dbo.ArtistArtworksForPortfolioView', 'V') IS NOT NULL
     DROP VIEW dbo.ArtistArtworksForPortfolioView;
@@ -36,4 +42,4 @@ GO
 -- Select from the view to verify and sort the results
 SELECT * 
 FROM dbo.ArtistArtworksForPortfolioView
-ORDER BY [Artist Name], [Artwork Title]; 
+ORDER BY [Artist Name], [Artwork Title];

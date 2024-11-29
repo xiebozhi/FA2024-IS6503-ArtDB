@@ -1,3 +1,9 @@
+-- USE CASE 2: Specific Period
+-- Requirements:
+-- 1) Involves multiple entities: Artist, Artwork
+-- 2) Uses mathematical functions: COUNT
+-- 3) Uses GROUP BY feature
+
 -- Drop the view if it already exists
 IF OBJECT_ID('dbo.ArtistArtworksByEraView', 'V') IS NOT NULL
     DROP VIEW dbo.ArtistArtworksByEraView;
