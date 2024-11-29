@@ -2,7 +2,6 @@
 SET STATISTICS TIME OFF;
 SET STATISTICS IO OFF;
 
-
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
 DECLARE @CurrentBatch INT = 0;
@@ -62,10 +61,27 @@ DECLARE
     @source_pk_ArtistID VARCHAR(1000), 
     @Portfolio VARCHAR(1000), 
     @Classification VARCHAR(1000), 
-    @Rights_and_Reproduction VARCHAR(255);
+    @Rights_and_Reproduction VARCHAR(255),
+    @Object_Begin_Date VARCHAR(100), 
+    @Object_End_Date VARCHAR(100);
 
 -- Variable to count the number of records processed
 DECLARE @RecordCount INT = 0;
+
+-- Insert "Portfolio information not found" portfolio if not exists
+DECLARE @DefaultPortfolioID INT;
+IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Portfolio] WHERE [Title] = 'Portfolio information not found')
+BEGIN
+    INSERT INTO [art_connection_db].[dbo].[Portfolio] ([Title], [Notes])
+    VALUES ('Portfolio information not found', 'Default portfolio for artworks without specific portfolio information.');
+    SET @DefaultPortfolioID = SCOPE_IDENTITY();
+    -- PRINT 'Inserted PortfolioID ' + CONVERT(VARCHAR, @DefaultPortfolioID) + ' for "Portfolio information not found"';
+END
+ELSE
+BEGIN
+    SELECT @DefaultPortfolioID = [portfolioID] FROM [art_connection_db].[dbo].[Portfolio] WHERE [Title] = 'Portfolio information not found';
+    -- PRINT 'Found existing PortfolioID ' + CONVERT(VARCHAR, @DefaultPortfolioID) + ' for "Portfolio information not found"';
+END;
 
 -- Open the cursor
 OPEN ArtCursor;
@@ -120,11 +136,9 @@ BEGIN
 
     -- Check if the portfolio exists, insert if not, and get portfolioID
     DECLARE @PortfolioID INT;
-    IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Portfolio] WHERE [Title] = @Portfolio)
+    IF @Portfolio IS NULL OR NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Portfolio] WHERE [Title] = @Portfolio)
     BEGIN
-        INSERT INTO [art_connection_db].[dbo].[Portfolio] ([Title])
-        VALUES (@Portfolio);
-        SET @PortfolioID = SCOPE_IDENTITY();
+        SET @PortfolioID = @DefaultPortfolioID;
     END
     ELSE
     BEGIN
