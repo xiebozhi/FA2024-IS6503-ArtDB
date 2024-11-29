@@ -18,15 +18,10 @@ SELECT
     [medium], 
     [credit_line], 
     [department], 
-    CONCAT(
-        'w: ', COALESCE([item_width], 'N/A'), ', ',
-        'h: ', COALESCE([item_height], 'N/A'), ', ',
-        'd: ', COALESCE([item_depth], 'N/A'), ', ',
-        'diam: ', COALESCE([item_diameter], 'N/A')
-    ) AS [Dimensions],
+    CONCAT_WS(', ', [item_width], [item_height], [item_depth], [item_diameter]) AS [Dimensions], 
     [image_url], 
     [physical_location], 
-    [id] AS [source_pk_artID], 
+    [id] AS [source_pk_artID],  -- source_pk_artID
     [web_url],
     [full_name] AS [Legal_Name],
     [cited_name] AS [Display_Name],
@@ -34,7 +29,9 @@ SELECT
     [role], 
     [birth_date], 
     [death_date],
-    [id] AS [source_pk_ArtistID]
+    [artist_id] AS [source_pk_ArtistID],  -- source_pk_ArtistID
+    [provenance_text],
+    [classification]
 FROM 
     [art_connection_db].[dbo].[carnigie_teenie]
 WHERE 
@@ -59,12 +56,14 @@ DECLARE
     @Role VARCHAR(8000), 
     @Birth_Date VARCHAR(50), 
     @Death_Date VARCHAR(50), 
-    @source_pk_ArtistID VARCHAR(1000);
+    @source_pk_ArtistID VARCHAR(1000), 
+    @Provenance_Text VARCHAR(8000), 
+    @Classification VARCHAR(1000);
 
 -- Variable to count the number of records processed
 DECLARE @RecordCount INT = 0;
 
--- Insert Harris Teenie Collection portfolio if not exists
+-- Insert "Harris Teenie Collection" portfolio if not exists
 DECLARE @PortfolioID INT;
 IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Portfolio] WHERE [Title] = 'Harris Teenie Collection')
 BEGIN
@@ -86,7 +85,7 @@ OPEN ArtCursor;
 FETCH NEXT FROM ArtCursor INTO 
     @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department,
     @Dimensions, @Image_URL, @Repository, @source_pk_artID, @Web_URL,
-    @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID;
+    @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID, @Provenance_Text, @Classification;
 
 -- Loop through the cursor
 WHILE @@FETCH_STATUS = 0
@@ -98,11 +97,10 @@ BEGIN
     )
     VALUES (
         @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, 
-        @Dimensions, @Image_URL, @Repository, 'cmoa_teenie', @source_pk_artID, @Web_URL
+        @Dimensions, @Image_URL, @Repository, 'teenie', @source_pk_artID, @Web_URL
     );
 
     DECLARE @artID INT = SCOPE_IDENTITY();
-    -- PRINT 'Inserted artID ' + CONVERT(VARCHAR, @artID) + ' with "' + LEFT(@Title, 50) + '"';
 
     -- Check if the artist exists by Display_Name, insert if not, and get artistID
     DECLARE @artistID INT;
@@ -113,7 +111,7 @@ BEGIN
             [source_identifyer_artist], [source_pk_ArtistID]
         )
         VALUES (
-            @Display_Name, @Legal_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'cmoa_teenie', @source_pk_ArtistID
+            @Display_Name, @Legal_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'teenie', @source_pk_ArtistID
         );
         SET @artistID = SCOPE_IDENTITY();
     END
@@ -128,14 +126,14 @@ BEGIN
 
     -- Insert into Linker_Art_In_Museum table
     INSERT INTO [art_connection_db].[dbo].[Linker_Art_In_Museum] ([artID], [museumID])
-    VALUES (@artID, 3); -- Assuming 3 is the ID for CMOA Teenie
+    VALUES (@artID, 1); -- Assuming 1 is the ID for CMOA
 
     -- Insert into linker_Art_In_Portfolio table
     INSERT INTO [art_connection_db].[dbo].[linker_Art_In_Portfolio] ([artID], [portfolioID])
     VALUES (@artID, @PortfolioID);
 
     -- Singular print statement for summary
-    PRINT 'Processed artID: ' + CONVERT(VARCHAR, @artID) + ', Title: "' + LEFT(@Title, 50) + '", artistID: ' + CONVERT(VARCHAR, @artistID) + ', Artist Name: "' + LEFT(@Display_Name, 50) + '"';
+    PRINT 'Processed artID: ' + CONVERT(VARCHAR, @artID) + ', Title: "' + LEFT(@Title, 50) + '", artistID: ' + CONVERT(VARCHAR, @artistID) + ', Artist Name: "' + LEFT(@Display_Name, 50) + '", Portfolio: "' + LEFT(@Portfolio, 50) + '"';
 
     -- Increment the record count
     SET @RecordCount = @RecordCount + 1;
@@ -154,15 +152,21 @@ BEGIN
     FETCH NEXT FROM ArtCursor INTO 
         @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department,
         @Dimensions, @Image_URL, @Repository, @source_pk_artID, @Web_URL,
-        @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID;
+        @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID, @Provenance_Text, @Classification;
 END;
 
 -- Close and deallocate the cursor
 CLOSE ArtCursor;
 DEALLOCATE ArtCursor;
 
--- Commit the transaction
-COMMIT TRANSACTION;
+-- Commit any remaining records
+IF @CurrentBatch > 0
+BEGIN
+    COMMIT TRANSACTION;
+    -- PRINT 'Committed final batch of ' + CONVERT(VARCHAR, @CurrentBatch) + ' records';
+END
+
+PRINT 'Processing complete. Added ' + CONVERT(VARCHAR, @RecordCount) + ' records from source file: CMOA_teenie';
 
 -- Disable execution plan
 SET STATISTICS TIME OFF;
