@@ -1,6 +1,6 @@
 -- Enable execution plan
-SET STATISTICS TIME ON;
-SET STATISTICS IO ON;
+SET STATISTICS TIME OFF;
+SET STATISTICS IO OFF;
 
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
@@ -21,7 +21,7 @@ SELECT
     CONCAT_WS(', ', [item_width], [item_height], [item_depth], [item_diameter]) AS [Dimensions], 
     [image_url], 
     [physical_location], 
-    [id], 
+    [id] AS [source_pk_artID],  -- source_pk_artID
     [web_url],
     [full_name] AS [Legal_Name],
     [cited_name] AS [Display_Name],
@@ -29,7 +29,7 @@ SELECT
     [role], 
     [birth_date], 
     [death_date],
-    [artist_id],
+    [artist_id] AS [source_pk_ArtistID],  -- source_pk_ArtistID
     [provenance_text],
     [classification]
 FROM 
@@ -56,7 +56,7 @@ DECLARE
     @Role VARCHAR(8000), 
     @Birth_Date VARCHAR(50), 
     @Death_Date VARCHAR(50), 
-    @Artist_ID VARCHAR(1000), 
+    @source_pk_ArtistID VARCHAR(1000), 
     @Provenance_Text VARCHAR(8000), 
     @Classification VARCHAR(1000);
 
@@ -85,7 +85,7 @@ OPEN ArtCursor;
 FETCH NEXT FROM ArtCursor INTO 
     @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department,
     @Dimensions, @Image_URL, @Repository, @source_pk_artID, @Web_URL,
-    @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @Artist_ID, @Provenance_Text, @Classification;
+    @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID, @Provenance_Text, @Classification;
 
 -- Loop through the cursor
 WHILE @@FETCH_STATUS = 0
@@ -93,7 +93,7 @@ BEGIN
     -- Insert artwork record
     INSERT INTO [art_connection_db].[dbo].[Artwork] ([catalogue_number], [Title], [Creation_Date], [Medium], [Credit_Line], [Department],[Dimensions], [Image_URL], [Repository], [source_identifyer_art], [source_pk_artID], [Web_URL])
     VALUES (@catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, 
-            @Dimensions, @Image_URL, @Repository, 'CMOA_cmoa', @source_pk_artID, @Web_URL);
+            @Dimensions, @Image_URL, @Repository, 'cmoa', @source_pk_artID, @Web_URL);
 
     DECLARE @artID INT = SCOPE_IDENTITY();
     -- PRINT 'Inserted artID ' + CONVERT(VARCHAR, @artID) + ' with "' + LEFT(@Title, 50) + '"';
@@ -103,7 +103,7 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Artist] WHERE [Display_Name] = @Display_Name)
     BEGIN
         INSERT INTO [art_connection_db].[dbo].[Artist] ([Display_Name], [Legal_Name], [Nationality], [Role], [Birth_Date], [Death_Date], [source_identifyer_artist], [source_pk_ArtistID])
-        VALUES (@Display_Name, @Legal_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'CMOA_cmoa', @Artist_ID);
+        VALUES (@Display_Name, @Legal_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'cmoa', @source_pk_ArtistID);
         SET @artistID = SCOPE_IDENTITY();
         -- PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Display_Name, 50) + '"';
     END
@@ -148,7 +148,7 @@ BEGIN
     FETCH NEXT FROM ArtCursor INTO 
         @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department,
         @Dimensions, @Image_URL, @Repository, @source_pk_artID, @Web_URL,
-        @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @Artist_ID, @Provenance_Text, @Classification;
+        @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID, @Provenance_Text, @Classification;
 END;
 
 -- Close and deallocate the cursor

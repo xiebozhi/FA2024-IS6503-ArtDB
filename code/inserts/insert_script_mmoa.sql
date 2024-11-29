@@ -2,7 +2,6 @@
 SET STATISTICS TIME OFF;
 SET STATISTICS IO OFF;
 
-
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
 DECLARE @CurrentBatch INT = 0;
@@ -13,17 +12,26 @@ BEGIN TRANSACTION;
 -- Declare a cursor to process each row individually
 DECLARE ArtCursor CURSOR FOR 
 SELECT 
-    art.[Artwork_ID] AS [Source_PK_Artist_ID],
+    art.[Artwork_ID] AS [source_pk_artID], -- Assign Artwork_ID to source_pk_artID
     art.[Title], 
     art.[Date] AS [Creation_Date], 
     art.[Medium], 
     art.[Credit] AS [Credit_Line], 
     art.[Department], 
-    CONCAT_WS(', ', art.[Width_cm], art.[Height_cm], art.[Depth_cm], art.[Diameter_cm], art.[Circumference_cm], art.[Length_cm], art.[Weight_kg], art.[Duration_s]) AS [Dimensions], 
+    CONCAT(
+        'Width: ', COALESCE(art.[Width_cm], 'N/A'), ' cm, ',
+        'Height: ', COALESCE(art.[Height_cm], 'N/A'), ' cm, ',
+        'Depth: ', COALESCE(art.[Depth_cm], 'N/A'), ' cm, ',
+        'Diameter: ', COALESCE(art.[Diameter_cm], 'N/A'), ' cm, ',
+        'Circumference: ', COALESCE(art.[Circumference_cm], 'N/A'), ' cm, ',
+        'Length: ', COALESCE(art.[Length_cm], 'N/A'), ' cm, ',
+        'Weight: ', COALESCE(art.[Weight_kg], 'N/A'), ' kg, ',
+        'Duration: ', COALESCE(art.[Duration_s], 'N/A'), ' s'
+    ) AS [Dimensions],
     art.[Object_Number], 
     art.[Classification], 
     art.[Name] AS [Legal_Name],
-    art.[Artist_ID], 
+    art.[Artist_ID] AS [source_pk_ArtistID], -- Assign Artist_ID to source_pk_ArtistID
     art.[Acquisition_Date],
     art.[Catalogue],
     art.[Weight_kg],
@@ -53,7 +61,7 @@ DECLARE
     @Object_Number VARCHAR(100), 
     @Classification VARCHAR(1000), 
     @Legal_Name VARCHAR(100), 
-    @Artist_ID VARCHAR(1000),
+    @source_pk_ArtistID VARCHAR(1000),
     @Acquisition_Date VARCHAR(100), 
     @Catalogue VARCHAR(100), 
     @Weight_kg VARCHAR(100),
@@ -87,7 +95,7 @@ OPEN ArtCursor;
 -- Fetch the first row
 FETCH NEXT FROM ArtCursor INTO 
     @Artwork_ID, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, @Dimensions, 
-    @Object_Number, @Classification, @Legal_Name, @Artist_ID, @Acquisition_Date, @Catalogue, 
+    @Object_Number, @Classification, @Legal_Name, @source_pk_ArtistID, @Acquisition_Date, @Catalogue, 
     @Weight_kg, @Artist_Name, @Nationality, @Gender, @Birth_Date, @Death_Date;
 
 -- Loop through the cursor
@@ -100,22 +108,22 @@ BEGIN
     )
     VALUES (
         @Object_Number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, 
-        @Dimensions, 'MMOA', @Artwork_ID
+        @Dimensions, 'mmoa', @Artwork_ID
     );
 
     DECLARE @artID INT = SCOPE_IDENTITY();
     -- PRINT 'Inserted artID ' + CONVERT(VARCHAR, @artID) + ' with "' + LEFT(@Title, 50) + '"';
 
-    -- Check if the artist exists by Title, insert if not, and get artistID
+    -- Check if the artist exists by Display_Name, insert if not, and get artistID
     DECLARE @artistID INT;
     IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Artist] WHERE [Display_Name] = @Artist_Name)
     BEGIN
         INSERT INTO [art_connection_db].[dbo].[Artist] (
-            [Display_Name], [Nationality],  [Birth_Date], [Death_Date], 
+            [Display_Name], [Nationality], [Role], [Birth_Date], [Death_Date], 
             [source_identifyer_artist], [source_pk_ArtistID], [Gender]
         )
         VALUES (
-            @Artist_Name, @Nationality, @Birth_Date, @Death_Date, 'MMOA', @Artist_ID, @Gender
+            @Artist_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'mmoa', @source_pk_ArtistID, @Gender
         );
         SET @artistID = SCOPE_IDENTITY();
         -- PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Artist_Name, 50) + '"';
@@ -160,7 +168,7 @@ BEGIN
     -- Fetch the next row
     FETCH NEXT FROM ArtCursor INTO 
         @Artwork_ID, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, @Dimensions, 
-        @Object_Number, @Classification, @Legal_Name, @Artist_ID, @Acquisition_Date, @Catalogue, 
+        @Object_Number, @Classification, @Legal_Name, @source_pk_ArtistID, @Acquisition_Date, @Catalogue, 
         @Weight_kg, @Artist_Name, @Nationality, @Gender, @Birth_Date, @Death_Date;
 END;
 

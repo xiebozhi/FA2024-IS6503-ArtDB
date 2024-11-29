@@ -1,6 +1,6 @@
 -- Enable execution plan
-SET STATISTICS TIME ON;
-SET STATISTICS IO ON;
+SET STATISTICS TIME OFF;
+SET STATISTICS IO OFF;
 
 -- Define batch size
 DECLARE @BatchSize INT = 1000;
@@ -18,7 +18,12 @@ SELECT
     [medium], 
     [credit_line], 
     [department], 
-    CONCAT_WS(', ', [item_width], [item_height], [item_depth], [item_diameter]) AS [Dimensions], 
+    CONCAT(
+        'w: ', COALESCE([item_width], 'N/A'), ', ',
+        'h: ', COALESCE([item_height], 'N/A'), ', ',
+        'd: ', COALESCE([item_depth], 'N/A'), ', ',
+        'diam: ', COALESCE([item_diameter], 'N/A')
+    ) AS [Dimensions],
     [image_url], 
     [physical_location], 
     [id], 
@@ -29,7 +34,8 @@ SELECT
     [role], 
     [birth_date], 
     [death_date],
-    [id] AS [source_pk_ArtistID]
+    [id] AS [source_pk_ArtistID],
+    [id] AS [source_pk_artID]
 FROM 
     [art_connection_db].[dbo].[carnigie_teenie]
 WHERE 
@@ -53,8 +59,7 @@ DECLARE
     @Nationality VARCHAR(8000), 
     @Role VARCHAR(8000), 
     @Birth_Date VARCHAR(50), 
-    @Death_Date VARCHAR(50), 
-    @source_pk_ArtistID VARCHAR(1000);
+    @Death_Date VARCHAR(50);
 
 -- Variable to count the number of records processed
 DECLARE @RecordCount INT = 0;
@@ -81,7 +86,7 @@ OPEN ArtCursor;
 FETCH NEXT FROM ArtCursor INTO 
     @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department,
     @Dimensions, @Image_URL, @Repository, @source_pk_artID, @Web_URL,
-    @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID;
+    @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date;
 
 -- Loop through the cursor
 WHILE @@FETCH_STATUS = 0
@@ -98,8 +103,8 @@ BEGIN
     DECLARE @artistID INT;
     IF NOT EXISTS (SELECT 1 FROM [art_connection_db].[dbo].[Artist] WHERE [Display_Name] = @Display_Name)
     BEGIN
-        INSERT INTO [art_connection_db].[dbo].[Artist] ([Display_Name], [Nationality], [Role], [Birth_Date], [Death_Date], [source_identifyer_artist], [source_pk_ArtistID])
-        VALUES (@Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'CMOA_teenie', @source_pk_ArtistID);
+        INSERT INTO [art_connection_db].[dbo].[Artist] ([Display_Name], [Legal_Name], [Nationality], [Role], [Birth_Date], [Death_Date], [source_identifyer_artist], [source_pk_ArtistID])
+        VALUES (@Display_Name, @Legal_Name, @Nationality, @Role, @Birth_Date, @Death_Date, 'CMOA_teenie', @source_pk_artID);
         SET @artistID = SCOPE_IDENTITY();
         -- PRINT 'Inserted artistID ' + CONVERT(VARCHAR, @artistID) + ' with "' + LEFT(@Display_Name, 50) + '"';
     END
@@ -144,7 +149,7 @@ BEGIN
     FETCH NEXT FROM ArtCursor INTO 
         @catalogue_number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department,
         @Dimensions, @Image_URL, @Repository, @source_pk_artID, @Web_URL,
-        @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date, @source_pk_ArtistID;
+        @Legal_Name, @Display_Name, @Nationality, @Role, @Birth_Date, @Death_Date;
 END;
 
 -- Close and deallocate the cursor
