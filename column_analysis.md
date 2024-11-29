@@ -8,6 +8,7 @@
 - `Credit_Line`
 - `Department`
 - `Dimensions`
+- `Weight_kg`
 - `Image_URL`
 - `Repository`
 - `source_pk_artID`
@@ -25,7 +26,6 @@
 - None
 
 ### Columns Populated by Two Scripts
-- `Weight_kg` (MMOA, MET)
 - `Acquisition_Date` (MMOA, MET)
 - `Catalogue` (MMOA, MET)
 - `Object_Begin_Date` (MET, CMOA)

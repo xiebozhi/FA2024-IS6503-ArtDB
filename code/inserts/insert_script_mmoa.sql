@@ -104,11 +104,11 @@ BEGIN
     -- Insert artwork record
     INSERT INTO [art_connection_db].[dbo].[Artwork] (
         [catalogue_number], [Title], [Creation_Date], [Medium], [Credit_Line], [Department], 
-        [Dimensions], [source_identifyer_art], [source_pk_artID]
+        [Dimensions], [Weight], [source_identifyer_art], [source_pk_artID]
     )
     VALUES (
         @Object_Number, @Title, @Creation_Date, @Medium, @Credit_Line, @Department, 
-        @Dimensions, 'mmoa', @Artwork_ID
+        @Dimensions, @Weight_kg, 'mmoa', @Artwork_ID
     );
 
     DECLARE @artID INT = SCOPE_IDENTITY();
