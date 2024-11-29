@@ -1,5 +1,12 @@
 -- Switch to the target database
 USE [art_connection_db];
+-- Drop and create the database
+IF DB_ID('art_connection_db') IS NOT NULL
+BEGIN
+  ALTER DATABASE [art_connection_db] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+  DROP DATABASE [art_connection_db];
+END
+CREATE DATABASE [art_connection_db];
 
 -- Drop indexes
 DROP INDEX IF EXISTS idx_carn_cmoa_id ON [art_connection_db].[dbo].[carnigie_cmoa];
@@ -134,7 +141,7 @@ CREATE TABLE [art_connection_db].[dbo].[Linker_Art_In_Museum] (
   FOREIGN KEY (museumID) REFERENCES [art_connection_db].[dbo].[Museum](museumID)
 );
 
--- Alter column data types based on the rounded-up lengths (64)
+-- Alter index column data types based on the rounded-up lengths (64)
 ALTER TABLE [art_connection_db].[dbo].[carnigie_cmoa] ALTER COLUMN [id] VARCHAR(64);
 ALTER TABLE [art_connection_db].[dbo].[carnigie_teenie] ALTER COLUMN [id] VARCHAR(64);
 ALTER TABLE [art_connection_db].[dbo].[MetObjects] ALTER COLUMN [Object_ID] VARCHAR(64);
@@ -142,7 +149,7 @@ ALTER TABLE [art_connection_db].[dbo].[MetObjects] ALTER COLUMN [Object_Number] 
 ALTER TABLE [art_connection_db].[dbo].[MMOA_artworks] ALTER COLUMN [Artwork_ID] VARCHAR(64);
 ALTER TABLE [art_connection_db].[dbo].[MMOA_artists] ALTER COLUMN [Artist_ID] VARCHAR(64);
 
--- Re-create indexes
+-- Create indexes
 CREATE INDEX idx_carn_cmoa_id ON [art_connection_db].[dbo].[carnigie_cmoa] ([id]);
 CREATE INDEX idx_carn_teenie_id ON [art_connection_db].[dbo].[carnigie_teenie] ([id]);
 CREATE INDEX idx_met_Object_ID ON [art_connection_db].[dbo].[MetObjects] ([Object_ID]);
